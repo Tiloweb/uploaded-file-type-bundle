@@ -1,6 +1,6 @@
 {
     "name": "tiloweb/uploaded-file-type-bundle",
-    "description": "Handle the form FileType upload and store the URL",
+    "description": "A Symfony bundle that handle the form FileType upload and store the URL for you",
     "type": "symfony-bundle",
     "license": "MIT",
     "authors": [
@@ -13,7 +13,6 @@
         "php": "^7.1.3||^8.0",
         "oneup/flysystem-bundle": "^4.0||^3.0",
         "symfony/framework-bundle": "^5.2",
-        "symfony/templating": "^5.2",
         "symfony/twig-bundle": "^5.2",
         "symfony/yaml": "^5.2",
         "symfony/form": "^5.2"
