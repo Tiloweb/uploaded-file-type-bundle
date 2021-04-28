@@ -9,7 +9,7 @@ class UploadedFileTypeService
     private array $configurations;
 
     public function __construct(
-        array $configurations,
+        array $configurations
     ) {
         $this->configurations = $configurations;
     }
