@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services https://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service class="Tiloweb\UploadedFileTypeBundle\UploadedFileTypeService"
+                 id="tiloweb_uploaded_file_type.uploaded_file_type_service"
+                 public="true">
+        </service>
+        <service id="Tiloweb\UploadedFileTypeBundle\UploadedFileTypeService"
+                 alias="tiloweb_uploaded_file_type.uploaded_file_type_service"
+                 public="false">
+
+        </service>
+
+        <service class="Tiloweb\UploadedFileTypeBundle\Form\UploadedFileTypeExtension"
+                 id="tiloweb_uploaded_file_type.form.uploaded_file_type_extension"
+                 public="true">
+            <argument type="service" id="tiloweb_uploaded_file_type.uploaded_file_type_service"/>
+            <tag name="form.type_extension" extended_type="Symfony\Component\Form\Extension\Core\Type\FileType"/>
+        </service>
+
+        <service id="Tiloweb\UploadedFileTypeBundle\Form\UploadedFileTypeExtension"
+                 alias="tiloweb_uploaded_file_type.form.uploaded_file_type_extension"
+                 public="false">
+
+        </service>
+    </services>
+</container>

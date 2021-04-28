@@ -1,0 +1,26 @@
+{
+    "name": "tiloweb/uploaded-file-type-bundle",
+    "description": "Handle the form FileType upload and store the URL",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Thibault HENRY",
+            "email": "thibault@fidcar.com"
+        }
+    ],
+    "require": {
+        "php": "^7.1.3||^8.0",
+        "oneup/flysystem-bundle": "^4.0||^3.0",
+        "symfony/framework-bundle": "^5.2",
+        "symfony/templating": "^5.2",
+        "symfony/twig-bundle": "^5.2",
+        "symfony/yaml": "^5.2",
+        "symfony/form": "^5.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Tiloweb\\UploadedFileTypeBundle\\": "src/"
+        }
+    }
+}
