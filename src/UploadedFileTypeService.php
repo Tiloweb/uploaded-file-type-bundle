@@ -29,8 +29,8 @@ class UploadedFileTypeService
         return $this->configurations[$configuration];
     }
 
-    public function upload(string $filename, UploadedFile $uploadedFile, string $configuration): ?string {
-        if(!$this->hasConfiguration($configuration)) {
+    public function upload(string $filename, UploadedFile $uploadedFile, ?string $configuration): ?string {
+        if(!$configuration || !$this->hasConfiguration($configuration)) {
             return null;
         }
 
