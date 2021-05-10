@@ -50,11 +50,11 @@ class UploadedFileTypeExtension implements FormTypeExtensionInterface
 
     public function buildView(FormView $view, FormInterface $form, array $options): void
     {
-        $configuration = $options['upload'];
-
-        if(!isset($configuration)) {
+        if(!isset($options['upload'])) {
             return;
         }
+
+        $configuration = $options['upload'];
 
         $data = $form->getParent()->getData();
 
