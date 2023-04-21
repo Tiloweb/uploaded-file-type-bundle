@@ -81,7 +81,7 @@ class UploadedFileTypeExtension implements FormTypeExtensionInterface
                 $uploadedFile = $event->getData();
                 $item = $event->getForm()->getParent()->getData();
 
-                if(!$uploadedFile) {
+                if(!$uploadedFile or !$uploadedFile->isValid()) {
                     return;
                 }
 
