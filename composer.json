@@ -1,5 +1,5 @@
 {
-    "name": "tiloweb/uploaded-file-type-bundle",
+    "name": "salvatorepandolfi/uploaded-file-type-bundle",
     "description": "A Symfony bundle that handle the form FileType upload and store the URL for you",
     "type": "symfony-bundle",
     "license": "MIT",
