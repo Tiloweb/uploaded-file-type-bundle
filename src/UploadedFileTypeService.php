@@ -14,7 +14,7 @@ class UploadedFileTypeService
         $this->configurations = $configurations;
     }
 
-    public function hasConfiguration(string $configuration) {
+    public function hasConfiguration(string $configuration): bool {
         return isset($this->configurations[$configuration]);
     }
 
