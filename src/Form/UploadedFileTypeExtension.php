@@ -72,7 +72,7 @@ class UploadedFileTypeExtension implements FormTypeExtensionInterface
         }
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->addEventListener(
             FormEvents::POST_SUBMIT,
@@ -101,7 +101,7 @@ class UploadedFileTypeExtension implements FormTypeExtensionInterface
         );
     }
 
-    public function finishView(FormView $view, FormInterface $form, array $options)
+    public function finishView(FormView $view, FormInterface $form, array $options): void
     {
 
     }
