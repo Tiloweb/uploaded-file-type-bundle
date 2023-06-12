@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 class UploadedFileTypeExtension extends Extension
 {
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container): void
     {
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../../config'));
         $loader->load('services.xml');
@@ -33,7 +33,7 @@ class UploadedFileTypeExtension extends Extension
         $this->loadTwigTheme($container);
     }
 
-    private function loadTwigTheme(ContainerBuilder $container)
+    private function loadTwigTheme(ContainerBuilder $container): void
     {
         if (!$container->hasParameter('twig.form.resources')) {
             return;
