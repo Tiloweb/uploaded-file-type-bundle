@@ -2,6 +2,8 @@
 
 namespace Tiloweb\UploadedFileTypeBundle;
 
+use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class UploadedFileTypeService
@@ -29,6 +31,9 @@ class UploadedFileTypeService
         return $this->configurations[$configuration];
     }
 
+    /**
+     * @throws FilesystemException
+     */
     public function upload(string $filename, UploadedFile $uploadedFile, ?string $configuration): ?string {
         if(!$configuration || !$this->hasConfiguration($configuration)) {
             return null;
@@ -37,7 +42,7 @@ class UploadedFileTypeService
         $filePath = $this->configurations[$configuration]['path'].'/'.$filename;
 
         /**
-         * @var \League\Flysystem\Filesystem $filesystem
+         * @var Filesystem $filesystem
          */
         $filesystem = $this->configurations[$configuration]['filesystem'];
 
