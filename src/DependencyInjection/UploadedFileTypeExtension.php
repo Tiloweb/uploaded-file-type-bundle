@@ -10,11 +10,13 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 class UploadedFileTypeExtension extends Extension
 {
+    /**
+     * @throws \Exception
+     */
     public function load(array $configs, ContainerBuilder $container): void
     {
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../../config'));
         $loader->load('services.xml');
-
 
         $configuration = $this->getConfiguration($configs, $container);
 
