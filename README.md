@@ -18,7 +18,7 @@ Applications that use Symfony Flex
 Open a command console, enter your project directory and execute:
 
 ```console
-$ composer require tiloweb/uploaded-filetype-bundle
+$ composer require tiloweb/uploaded-file-type-bundle
 ```
 
 Applications that don't use Symfony Flex
