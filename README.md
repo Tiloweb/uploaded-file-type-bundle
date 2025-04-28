@@ -30,7 +30,7 @@ Open a command console, enter your project directory and execute the
 following command to download the latest stable version of this bundle:
 
 ```console
-$ composer require tiloweb/uploaded-filetype-bundle
+$ composer require tiloweb/uploaded-file-type-bundle
 ```
 
 ### Step 2: Enable the Bundle
