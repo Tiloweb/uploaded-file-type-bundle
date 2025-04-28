@@ -2,8 +2,8 @@
 
 namespace Tiloweb\UploadedFileTypeBundle;
 
-use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemException;
+use League\Flysystem\FilesystemOperator;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class UploadedFileTypeService
@@ -16,15 +16,17 @@ class UploadedFileTypeService
         $this->configurations = $configurations;
     }
 
-    public function hasConfiguration(string $configuration): bool {
+    public function hasConfiguration(string $configuration): bool
+    {
         return isset($this->configurations[$configuration]);
     }
 
     /**
      * @throws \Exception
      */
-    public function getConfiguration(string $configuration = 'default'): array {
-        if(!$this->hasConfiguration($configuration)) {
+    public function getConfiguration(string $configuration = 'default'): array
+    {
+        if (!$this->hasConfiguration($configuration)) {
             return $this->configurations[0];
         }
 
@@ -34,15 +36,16 @@ class UploadedFileTypeService
     /**
      * @throws FilesystemException
      */
-    public function upload(string $filename, UploadedFile $uploadedFile, ?string $configuration): ?string {
-        if(!$configuration || !$this->hasConfiguration($configuration)) {
+    public function upload(string $filename, UploadedFile $uploadedFile, ?string $configuration): ?string
+    {
+        if (!$configuration || !$this->hasConfiguration($configuration)) {
             return null;
         }
 
-        $filePath = $this->configurations[$configuration]['path'].'/'.$filename;
+        $filePath = $this->configurations[$configuration]['path'] . '/' . $filename;
 
         /**
-         * @var Filesystem $filesystem
+         * @var FilesystemOperator $filesystem
          */
         $filesystem = $this->configurations[$configuration]['filesystem'];
 
@@ -52,6 +55,6 @@ class UploadedFileTypeService
 
         fclose($stream);
 
-        return $this->configurations[$configuration]['base_uri'].$filePath;
+        return $this->configurations[$configuration]['base_uri'] . $filePath;
     }
 }

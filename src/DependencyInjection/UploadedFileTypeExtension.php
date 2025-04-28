@@ -15,7 +15,7 @@ class UploadedFileTypeExtension extends Extension
      */
     public function load(array $configs, ContainerBuilder $container): void
     {
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../../config'));
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../../config'));
         $loader->load('services.xml');
 
         $configuration = $this->getConfiguration($configs, $container);
@@ -24,7 +24,7 @@ class UploadedFileTypeExtension extends Extension
 
         $definition = $container->getDefinition("tiloweb_uploaded_file_type.uploaded_file_type_service");
 
-        $config['configurations'] = array_map(function(array $config) {
+        $config['configurations'] = array_map(function (array $config) {
             $config['filesystem'] = new Reference($config['filesystem']);
 
             return $config;
@@ -41,11 +41,16 @@ class UploadedFileTypeExtension extends Extension
             return;
         }
 
+        $resources = $container->getParameter('twig.form.resources');
+        if (!is_array($resources)) {
+            $resources = [$resources];
+        }
+
         $container->setParameter('twig.form.resources', array_merge(
             [
                 '@UploadedFileType/form.html.twig'
             ],
-            $container->getParameter('twig.form.resources')
+            $resources
         ));
     }
 }

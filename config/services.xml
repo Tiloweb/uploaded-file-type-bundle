@@ -18,7 +18,7 @@
                  id="tiloweb_uploaded_file_type.form.uploaded_file_type_extension"
                  public="true">
             <argument type="service" id="tiloweb_uploaded_file_type.uploaded_file_type_service"/>
-            <tag name="form.type_extension" extended_type="Symfony\Component\Form\Extension\Core\Type\FileType"/>
+            <tag name="form.type_extension" extended-type="Symfony\Component\Form\Extension\Core\Type\FileType"/>
         </service>
 
         <service id="Tiloweb\UploadedFileTypeBundle\Form\UploadedFileTypeExtension"
