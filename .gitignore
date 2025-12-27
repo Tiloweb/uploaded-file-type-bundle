@@ -1,4 +1,38 @@
+# Dependencies
 /vendor/
+
+# IDE
+/.idea/
+/.vscode/
+*.swp
+*.swo
+*~
+
+# Auto-generated files
+/config/reference.php
+
+# Cache
+/var/
+.php-cs-fixer.cache
+.phpunit.cache/
+.phpunit.result.cache
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Composer
 composer.lock
-.php-version
-.idea/*
+composer.phar
+
+# PHPUnit
+/phpunit.xml
+/.phpunit.result.cache
+/coverage/
+
+# PHPStan
+/phpstan.neon.local
+
+# Local configuration
+/.env.local
+/.env.*.local

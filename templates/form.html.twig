@@ -1,11 +1,32 @@
 {% extends 'form_div_layout.html.twig' %}
 
 {% block file_widget %}
-	{{ block('form_widget') }}
+    {{ block('form_widget') }}
 
-	{% if url is defined and url is not null %}
-		<div class="uploadedFileTypeImage">
-			<img src="{{ url }}" alt="Uploaded image"/>
-		</div>
-	{% endif %}
+    {% if url is defined and url is not null %}
+        <div class="uploaded-file-preview" data-controller="uploaded-file">
+            {% set is_image = url matches '/\\.(jpg|jpeg|png|gif|webp|svg|bmp|ico)$/i' %}
+            
+            {% if is_image %}
+                <div class="uploaded-file-preview__image">
+                    <img 
+                        src="{{ url }}" 
+                        alt="{{ 'uploaded_file.preview_alt'|trans({}, 'uploaded_file_type') }}"
+                        class="uploaded-file-preview__img"
+                        loading="lazy"
+                    />
+                </div>
+            {% else %}
+                <div class="uploaded-file-preview__file">
+                    <a href="{{ url }}" target="_blank" rel="noopener noreferrer" class="uploaded-file-preview__link">
+                        {{ 'uploaded_file.view_current'|trans({}, 'uploaded_file_type') }}
+                    </a>
+                </div>
+            {% endif %}
+            
+            <small class="uploaded-file-preview__hint">
+                {{ 'uploaded_file.replace_hint'|trans({}, 'uploaded_file_type') }}
+            </small>
+        </div>
+    {% endif %}
 {% endblock %}

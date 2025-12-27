@@ -1,356 +1,457 @@
-UploadedFileType Bundle
-=======================
+# UploadedFileType Bundle
 
-Don't handle the upload, storage, and access logic of your entities images !
-Just point where you want to upload the file, and only store the URL of it.
+[![CI](https://github.com/Tiloweb/uploaded-file-type-bundle/actions/workflows/ci.yml/badge.svg)](https://github.com/Tiloweb/uploaded-file-type-bundle/actions/workflows/ci.yml)
+[![Latest Stable Version](https://poser.pugx.org/tiloweb/uploaded-file-type-bundle/v/stable)](https://packagist.org/packages/tiloweb/uploaded-file-type-bundle)
+[![Total Downloads](https://poser.pugx.org/tiloweb/uploaded-file-type-bundle/downloads)](https://packagist.org/packages/tiloweb/uploaded-file-type-bundle)
+[![License](https://poser.pugx.org/tiloweb/uploaded-file-type-bundle/license)](https://packagist.org/packages/tiloweb/uploaded-file-type-bundle)
+[![PHP Version](https://img.shields.io/packagist/php-v/tiloweb/uploaded-file-type-bundle.svg)](https://packagist.org/packages/tiloweb/uploaded-file-type-bundle)
 
+A Symfony bundle that handles file uploads via forms and automatically stores the resulting URL in your entity. No more manual file handling in controllers!
 
-Installation
-============
+## ✨ Features
 
-Make sure Composer is installed globally, as explained in the
-[installation chapter](https://getcomposer.org/doc/00-intro.md)
-of the Composer documentation.
+- 🚀 **Zero-configuration file uploads** - Just add an option to your form field
+- 📦 **Flysystem integration** - Works with any storage backend (local, S3, GCS, SFTP, etc.)
+- 🔄 **Automatic URL storage** - The file URL is stored directly in your entity
+- 🎯 **Custom naming strategies** - Full control over uploaded file names
+- 🗑️ **Auto-cleanup** - Optionally delete previous files when uploading new ones
+- 🎨 **Twig integration** - Preview uploaded images in your forms
 
-Applications that use Symfony Flex
-----------------------------------
+## 📋 Requirements
 
-Open a command console, enter your project directory and execute:
+| Version | PHP | Symfony |
+|---------|-----|---------|
+| 2.x     | ≥ 8.1 | 6.4, 7.x, 8.x |
+| 1.x     | ≥ 8.1 | 6.x, 7.x |
 
-```console
-$ composer require tiloweb/uploaded-filetype-bundle
+## 📥 Installation
+
+```bash
+composer require tiloweb/uploaded-file-type-bundle
 ```
 
-Applications that don't use Symfony Flex
-----------------------------------------
-
-### Step 1: Download the Bundle
-
-Open a command console, enter your project directory and execute the
-following command to download the latest stable version of this bundle:
-
-```console
-$ composer require tiloweb/uploaded-filetype-bundle
-```
-
-### Step 2: Enable the Bundle
-
-Then, enable the bundle by adding it to the list of registered bundles
-in the `config/bundles.php` file of your project:
+If you're not using [Symfony Flex](https://symfony.com/doc/current/setup/flex.html), add the bundle manually:
 
 ```php
 // config/bundles.php
-
 return [
     // ...
     Tiloweb\UploadedFileTypeBundle\UploadedFileTypeBundle::class => ['all' => true],
 ];
 ```
 
-Configuration
-=============
+## ⚙️ Configuration
 
-### Step 1 : Configure your filesystem
-Use the [OneUp FlySystem](https://github.com/1up-lab/OneupFlysystemBundle) bundle to configure the filesystem you want to work with.
+### Step 1: Configure Flysystem
 
-### Step 2 : create a default configuration
+First, configure your filesystem adapter using the [OneupFlysystemBundle](https://github.com/1up-lab/OneupFlysystemBundle):
 
 ```yaml
-# config/package/uploaded_file_type.yml
+# config/packages/oneup_flysystem.yaml
+oneup_flysystem:
+    adapters:
+        default_adapter:
+            local:
+                location: '%kernel.project_dir%/public/uploads'
+
+    filesystems:
+        default_filesystem:
+            adapter: default_adapter
+            alias: League\Flysystem\Filesystem
+```
+
+### Step 2: Configure Upload Destinations
+
+```yaml
+# config/packages/uploaded_file_type.yaml
 uploaded_file_type:
-  configurations:
-    default:
-      filesystem: 'oneup_flysystem.your_filesystem'
-      base_uri: 'https://www.exemple.com/upload'
-      path: '/image'
+    configurations:
+        # Default configuration for general uploads
+        default:
+            filesystem: 'oneup_flysystem.default_filesystem'
+            base_uri: 'https://example.com/uploads'
+            path: '/files'
+
+        # Separate configuration for user avatars
+        avatars:
+            filesystem: 'oneup_flysystem.default_filesystem'
+            base_uri: 'https://example.com/uploads'
+            path: '/avatars'
+
+        # S3 configuration for large files
+        documents:
+            filesystem: 'oneup_flysystem.s3_filesystem'
+            base_uri: 'https://cdn.example.com'
+            path: '/documents'
 ```
 
-You can create many configurations, here, you will use the `default` configuration :
+### Configuration Options
 
-- ``filesystem`` : the alias to the OneUp FlySystem you want to use.
-- ``base_uri`` : the URL to access to the root of your filesystem.
-- ``path`` : The folder you want to upload your file to.
+| Option | Type | Required | Description |
+|--------|------|----------|-------------|
+| `filesystem` | string | ✅ | The Flysystem filesystem service ID |
+| `base_uri` | string | ❌ | The base URL for accessing uploaded files |
+| `path` | string | ❌ | The subdirectory path within the filesystem |
 
-Usage
-=====
+## 🚀 Usage
 
-Simple as 🦆 !
+### Basic Usage
 
-Juste create a Form with a FileType field, with the option `upload` :
+Simply add the `upload` option to any `FileType` field:
 
 ```php
-public function buildForm(FormBuilderInterface $builder, array $options)
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\FormBuilderInterface;
+
+class ProductType extends AbstractType
 {
-    $builder
-        ->add('image', FileType::class, [
-            'upload' => 'default'
-        ])
-    ;
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder
+            ->add('name')
+            ->add('image', FileType::class, [
+                'upload' => 'default',  // Use the 'default' configuration
+                'required' => false,
+            ])
+        ;
+    }
 }
 ```
 
-When the form will be submited, the file will be uploaded by the filesystem of the ``default`` configuration, the URL of the file will be constructed and stored in your ``$image`` field.
+That's it! When the form is submitted:
+1. The file is uploaded to your configured filesystem
+2. The URL is automatically stored in the `$image` property
+3. No additional controller code needed!
 
-You are able to change the naming strategy of your file once stored on your filesystem. To do so, you can add a ``filename`` option to your `FileType` pointing to an enclosure taking 2 parameters : 
+### Custom Filename Strategy
 
-1. ``UploadedFile $file`` will contain the file uploaded by through form
-2. ``UploadedFile $item`` will contain the data object of your form.
-
-By default, the naming strategy is :
+Control how files are named when uploaded:
 
 ```php
-public function buildForm(FormBuilderInterface $builder, array $options)
+$builder->add('avatar', FileType::class, [
+    'upload' => 'avatars',
+    'filename' => function (UploadedFile $file, User $user): string {
+        return sprintf(
+            'user_%d_%s.%s',
+            $user->getId(),
+            bin2hex(random_bytes(8)),
+            $file->guessClientExtension() ?? 'bin'
+        );
+    },
+]);
+```
+
+### Disable Auto-Cleanup
+
+By default, the previous file is deleted when uploading a new one. Disable this behavior:
+
+```php
+$builder->add('document', FileType::class, [
+    'upload' => 'documents',
+    'delete_previous' => false,  // Keep old files
+]);
+```
+
+### Available Form Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `upload` | string | - | The configuration name to use |
+| `filename` | callable | auto | Custom filename generator |
+| `delete_previous` | bool | `true` | Delete previous file on update |
+
+## 📖 Complete Example
+
+### Entity
+
+```php
+namespace App\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity]
+class Product
 {
-    $builder
-        ->add('image', FileType::class, [
-            'upload' => 'default',
-            'filename' => function(UploadedFile $file, $item) {
-                $filename = $file->getClientOriginalName();
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
+    #[ORM\Column(length: 255)]
+    private string $name = '';
+
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $image = null;
+
+    // Getters and setters...
     
-                $filename = str_replace(
-                    '.' . $file->guessClientExtension(),
-                    '.' . md5(microtime().rand(0, 1000)) . '.' . $file->guessClientExtension(),
-                    $filename
-                );
-    
-                return $filename;
-            }
-        ])
-    ;
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): static
+    {
+        $this->image = $image;
+        return $this;
+    }
 }
 ```
 
-
-Example
-=======
-
-Here, you will create a form in order to create a ``Retail`` entity with a logo that you want to store on the server.
+### Form
 
 ```php
-<?php
-# src/Form/RetailType.php
-
 namespace App\Form;
 
-use App\Entity\Retail;
+use App\Entity\Product;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Image;
 
-class RetailType extends AbstractType
+class ProductType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('label', TextType::class)
-            ->add('logo', FileType::class, [
-                'upload' => 'default'
+            ->add('name', TextType::class, [
+                'label' => 'Product Name',
+            ])
+            ->add('image', FileType::class, [
+                'upload' => 'default',
+                'required' => false,
+                'label' => 'Product Image',
+                'constraints' => [
+                    new Image([
+                        'maxSize' => '5M',
+                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp'],
+                    ]),
+                ],
             ])
         ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Retail::class,
+            'data_class' => Product::class,
         ]);
     }
 }
-
 ```
 
-```php
-<?php
-# src/Entity/Retail.php
-namespace App\Entity;
-
-use Doctrine\ORM\Mapping as ORM;
-
-/**
- * @ORM\Entity
- */
-class Retail
-{
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @ORM\Column(type="integer")
-     */
-    private int $id;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private string $label = '';
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private ?string $logo = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    public function getLabel(): ?string
-    {
-        return $this->label;
-    }
-
-    public function setLabel(string $label): self
-    {
-        $this->label = $label;
-
-        return $this;
-    }
-
-    public function getLogo(): ?string
-    {
-        return $this->logo;
-    }
-
-    public function setLogo(?string $logo): self
-    {
-        $this->logo = $logo;
-
-        return $this;
-    }
-}
-
-
-```
-
+### Controller
 
 ```php
-<?php
-# src/Entity/Retail.php
-namespace App\Entity;
-
-use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
-
-/**
- * @ORM\Entity
- */
-class Retail
-{
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @ORM\Column(type="integer")
-     */
-    private int $id;
-
-    /**
-     * @Assert\NotBlank
-     * @ORM\Column(type="string", length=255)
-     */
-    private string $label = '';
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private ?string $logo = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    public function getLabel(): ?string
-    {
-        return $this->label;
-    }
-
-    public function setLabel(string $label): self
-    {
-        $this->label = $label;
-
-        return $this;
-    }
-
-    public function getLogo(): ?string
-    {
-        return $this->logo;
-    }
-
-    public function setLogo(?string $logo): self
-    {
-        $this->logo = $logo;
-
-        return $this;
-    }
-}
-```
-
-```php
-<?php
-
 namespace App\Controller;
 
-use App\Entity\Retail;
-use App\Form\RetailType;
+use App\Entity\Product;
+use App\Form\ProductType;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 
-class DefaultController extends AbstractController
+class ProductController extends AbstractController
 {
-    /**
-     * @Route("/{retail}", name="app_edit")
-     */
-    public function form(Retail $retail, Request $request)
+    #[Route('/product/new', name: 'product_new')]
+    public function new(Request $request, EntityManagerInterface $em): Response
     {
-        $form = $this->createForm(RetailType::class, $retail);
-        $form->handleRequest($this->request);
+        $product = new Product();
+        $form = $this->createForm(ProductType::class, $product);
+        $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid()) {
-            // ...
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($product);
+            $em->flush();
+
+            // $product->getImage() now contains the URL!
+            // e.g., "https://example.com/uploads/files/product_a1b2c3d4.jpg"
+
+            return $this->redirectToRoute('product_show', ['id' => $product->getId()]);
         }
 
-        // ...
+        return $this->render('product/new.html.twig', [
+            'form' => $form,
+        ]);
     }
 }
-
 ```
+
+### Twig Template
+
+The bundle provides a form theme that displays the current image:
+
+```twig
+{# templates/product/new.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>New Product</h1>
+
+    {{ form_start(form) }}
+        {{ form_row(form.name) }}
+        {{ form_row(form.image) }}  {# Shows current image if exists #}
+        <button type="submit">Save</button>
+    {{ form_end(form) }}
+{% endblock %}
+```
+
+## 🎨 Customizing the Form Theme
+
+Override the default template to customize how uploaded files are displayed:
+
+```twig
+{# templates/form/uploaded_file.html.twig #}
+{% extends '@UploadedFileType/form.html.twig' %}
+
+{% block file_widget %}
+    {{ parent() }}
+    
+    {% if url is defined and url is not null %}
+        <div class="uploaded-file-preview">
+            {% if url matches '/\\.(jpg|jpeg|png|gif|webp)$/i' %}
+                <img src="{{ url }}" alt="Preview" class="preview-image">
+            {% else %}
+                <a href="{{ url }}" target="_blank">View current file</a>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}
+```
+
+Register your custom theme:
+
+```yaml
+# config/packages/twig.yaml
+twig:
+    form_themes:
+        - 'form/uploaded_file.html.twig'
+```
+
+## 🔧 Advanced Usage
+
+### Using the Service Directly
+
+```php
+use Tiloweb\UploadedFileTypeBundle\UploadedFileTypeService;
+
+class MyService
+{
+    public function __construct(
+        private UploadedFileTypeService $uploadService,
+    ) {}
+
+    public function uploadFile(UploadedFile $file): string
+    {
+        return $this->uploadService->upload(
+            filename: 'custom-name.pdf',
+            uploadedFile: $file,
+            configuration: 'documents'
+        );
+    }
+
+    public function deleteFile(string $url): bool
+    {
+        return $this->uploadService->delete($url, 'documents');
+    }
+
+    public function fileExists(string $url): bool
+    {
+        return $this->uploadService->exists($url, 'documents');
+    }
+}
+```
+
+### Cloud Storage Examples
+
+#### Amazon S3
 
 ```yaml
 # config/packages/oneup_flysystem.yaml
-# Read the documentation: https://github.com/1up-lab/OneupFlysystemBundle
 oneup_flysystem:
-  adapters:
-    default_adapter:
-      local:
-        location: '%kernel.project_dir%/public/upload'
-        
-  filesystems:
-    default_filesystem:
-      adapter: default_adapter
-      alias: League\Flysystem\Filesystem
+    adapters:
+        s3_adapter:
+            awss3v3:
+                client: Aws\S3\S3Client
+                bucket: '%env(AWS_S3_BUCKET)%'
+                prefix: uploads
 
-```
+    filesystems:
+        s3_filesystem:
+            adapter: s3_adapter
 
-```yaml
 # config/packages/uploaded_file_type.yaml
 uploaded_file_type:
-  configurations:
-    retail:
-      filesystem: 'oneup_flysystem.default_filesystem'
-      base_uri: 'https://www.example.com/upload'
-      path: '/retail'
+    configurations:
+        s3:
+            filesystem: 'oneup_flysystem.s3_filesystem'
+            base_uri: 'https://%env(AWS_S3_BUCKET)%.s3.%env(AWS_REGION)%.amazonaws.com'
+            path: '/uploads'
 ```
 
-If you submit the form after having selected on your computer the image ``logo.png``, the file will be stored in ``public/upload/retail/logo.ee2a6cd0ed54b0f9e625698ae909d7ff.png`` and the ``Retail::$logo`` will store the URL `https://www.example.com/upload/retail/logo.ee2a6cd0ed54b0f9e625698ae909d7ff.png`.
+#### Google Cloud Storage
 
-Reporting an issue or a feature request
-=======================================
+```yaml
+oneup_flysystem:
+    adapters:
+        gcs_adapter:
+            googlecloudstorage:
+                client: Google\Cloud\Storage\StorageClient
+                bucket: '%env(GCS_BUCKET)%'
 
-Issues and feature requests are tracked in the [Github issue tracker](https://github.com/Tiloweb/UploadedFileType/issues).
+    filesystems:
+        gcs_filesystem:
+            adapter: gcs_adapter
 
-When reporting a bug, it may be a good idea to reproduce it in a basic project
-built using the [symfony/website-skeleton](https://symfony.com/doc/current/setup.html#creating-symfony-applications)
-to allow developers of the bundle to reproduce the issue by simply cloning it
-and following some steps.
+uploaded_file_type:
+    configurations:
+        gcs:
+            filesystem: 'oneup_flysystem.gcs_filesystem'
+            base_uri: 'https://storage.googleapis.com/%env(GCS_BUCKET)%'
+            path: '/uploads'
+```
+
+## 🧪 Testing
+
+```bash
+# Run tests
+composer test
+
+# Run static analysis
+composer phpstan
+
+# Fix coding standards
+composer cs-fix
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This bundle is released under the [MIT License](LICENSE).
+
+## 🙏 Credits
+
+- [Thibault HENRY](https://henry.pro) - Creator
+- [All Contributors](https://github.com/Tiloweb/uploaded-file-type-bundle/contributors)
+
+## 🔗 Links
+
+- [Documentation](https://github.com/Tiloweb/uploaded-file-type-bundle)
+- [Issue Tracker](https://github.com/Tiloweb/uploaded-file-type-bundle/issues)
+- [Packagist](https://packagist.org/packages/tiloweb/uploaded-file-type-bundle)
+- [OneupFlysystemBundle](https://github.com/1up-lab/OneupFlysystemBundle)
+- [Flysystem](https://flysystem.thephpleague.com/)

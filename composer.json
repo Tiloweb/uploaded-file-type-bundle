@@ -1,25 +1,88 @@
 {
     "name": "tiloweb/uploaded-file-type-bundle",
-    "description": "A Symfony bundle that handle the form FileType upload and store the URL for you",
+    "description": "A Symfony bundle that handles file uploads via forms and stores the URL automatically using Flysystem",
     "type": "symfony-bundle",
     "license": "MIT",
+    "keywords": [
+        "symfony",
+        "bundle",
+        "form",
+        "file",
+        "upload",
+        "flysystem",
+        "storage",
+        "s3",
+        "aws"
+    ],
     "authors": [
         {
             "name": "Thibault HENRY",
-            "email": "thibault@henry.pro"
+            "email": "thibault@henry.pro",
+            "homepage": "https://henry.pro",
+            "role": "Developer"
         }
     ],
+    "homepage": "https://github.com/Tiloweb/uploaded-file-type-bundle",
+    "support": {
+        "issues": "https://github.com/Tiloweb/uploaded-file-type-bundle/issues",
+        "source": "https://github.com/Tiloweb/uploaded-file-type-bundle"
+    },
     "require": {
         "php": ">=8.1",
-        "oneup/flysystem-bundle": "^4.0",
-        "symfony/framework-bundle": "^6.0||^7.0",
-        "symfony/twig-bundle": "^6.0||^7.0",
-        "symfony/yaml": "^6.0||^7.0",
-        "symfony/form": "^6.0||^7.0"
+        "league/flysystem": "^3.0",
+        "symfony/form": "^6.4 || ^7.0 || ^8.0",
+        "symfony/framework-bundle": "^6.4 || ^7.0 || ^8.0",
+        "symfony/property-access": "^6.4 || ^7.0 || ^8.0",
+        "symfony/twig-bundle": "^6.4 || ^7.0 || ^8.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.64",
+        "oneup/flysystem-bundle": "^4.0 || ^5.0",
+        "phpstan/phpstan": "^2.0",
+        "phpstan/phpstan-symfony": "^2.0",
+        "phpunit/phpunit": "^10.0 || ^11.0",
+        "symfony/mime": "^6.4 || ^7.0 || ^8.0",
+        "symfony/phpunit-bridge": "^6.4 || ^7.0 || ^8.0"
+    },
+    "suggest": {
+        "oneup/flysystem-bundle": "Required to configure filesystem adapters easily",
+        "league/flysystem-aws-s3-v3": "Required to use Amazon S3 storage",
+        "league/flysystem-sftp-v3": "Required to use SFTP storage",
+        "league/flysystem-ftp": "Required to use FTP storage",
+        "league/flysystem-google-cloud-storage": "Required to use Google Cloud Storage"
     },
     "autoload": {
         "psr-4": {
             "Tiloweb\\UploadedFileTypeBundle\\": "src/"
         }
-    }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tiloweb\\UploadedFileTypeBundle\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "2.0-dev"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "phpstan": "vendor/bin/phpstan analyse",
+        "cs-fix": "vendor/bin/php-cs-fixer fix",
+        "cs-check": "vendor/bin/php-cs-fixer fix --dry-run --diff",
+        "quality": [
+            "@cs-check",
+            "@phpstan",
+            "@test"
+        ]
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }
