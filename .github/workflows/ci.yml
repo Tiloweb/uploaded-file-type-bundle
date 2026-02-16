@@ -137,6 +137,9 @@ jobs:
         run: |
           composer config extra.symfony.require "${{ matrix.symfony }}"
           composer config --no-plugins allow-plugins.symfony/flex true
+          # Symfony 7.0/7.1/7.2 are flagged by Composer audit (CVE-2025-64500 in http-foundation).
+          # Allow install for CI tests only - patched versions exist in 6.4.x and 7.3+.
+          composer config audit.block-insecure false
 
       - name: Install dependencies
         run: composer update --prefer-dist --no-progress --prefer-stable
